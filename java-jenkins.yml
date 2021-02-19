@@ -1,0 +1,57 @@
+---
+- hosts: webservers
+  become: yes
+  tasks:
+  - name: Update and upgrade apt packages
+    apt:
+      upgrade: yes
+      update_cache: yes
+      cache_valid_time: 86400 #One day
+  - name: "Install Java"
+    apt:
+      name: openjdk-8-jdk
+      state: present
+  - name: "Create Folder"
+    file:
+      path: /home/ubuntu/tomcat
+      state: directory
+      mode: 0777
+  - name: "Download Tomcat"
+    get_url: url=https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.27/bin/apache-tomcat-8.0.27.tar.gz dest=/home/ubuntu/tomcat
+  - name: "Extract Archve"
+    unarchive: src=/home/ubuntu/tomcat/apache-tomcat-8.0.27.tar.gz dest=/home/ubuntu/tomcat remote_src=yes
+  - name: "start Apache Tomcat"
+    become: yes
+    become_method: sudo
+    command: nohup /home/ubuntu/tomcat/apache-tomcat-8.0.27/bin/startup.sh remote_src=yes
+- hosts: node1
+  become: yes
+  tasks:
+  - name: Update and upgrade apt packages
+    apt:
+      upgrade: yes
+      update_cache: yes
+      cache_valid_time: 86400 #One day
+  - name: "Install Java"
+    apt:
+      name: openjdk-8-jdk
+      state: present
+  - name: "Install Jenkins on Node1"
+    apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+  - name: ensure the repository is configured
+    apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+  - name: "Check Jenkins is installed"
+    apt: name=jenkins update_cache=yes
+    become: yes
+  - name: "Start the Jenkins service"
+    service: name=jenkins state=started
+  - name: "Pause for 10 seconds"
+    pause:
+      seconds: 10
+  - name: "Get Jenkins initial Admin Password"
+    shell: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+    changed_when: false
+    register: result
+  - name: "Echo the password"
+    debug:
+     var: result.stdout
