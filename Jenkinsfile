@@ -31,9 +31,26 @@ pipeline {
                     //slackSend channel: 'alerts', message: 'Static code analysis is complete'
                     }
             }
+            	stage("artifactory upload"){
+    	    steps{
+    	        rtUpload (
+                    serverId: 'artifactory',
+                    spec: '''{
+                          "files": [
+                            {
+                              "pattern": "**/*.war",
+                              "target": "libs-release-local"
+                            }
+                         ]
+                    }''',
+                    buildName: 'holyFrog',
+                    buildNumber: '42'
+                )
+    	    }
+    	}
         stage('Test Deploy ') {
             steps {
-                    deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.220.168.111:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
+                    deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.224.107.247:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
                 
         }
     }
@@ -49,21 +66,25 @@ pipeline {
                 jiraSendBuildInfo branch: 'BUG-2', site: 'sathishdevops.atlassian.net'
         }
     }
-        stage('UI Test ') {
-            steps {
-                 publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '\\functionaltest\\target\\surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: ''])  
-                
-        }
-    }
+    	stage("unit test"){
+    		steps{
+    		   sh "mvn -B -f /var/lib/jenkins/workspace/Test/functionaltest/pom.xml install"
+    		}
+            post {
+                success {
+                   publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '\\functionaltest\\target\\surefire-reports', reportFiles: 'index.html', reportName: 'UI Test', reportTitles: ''])
+                }
+            }
+    	}
         stage('Deploy to Prod') {
             steps {
-                 deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.218.197.185:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
+                 deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://3.16.37.146:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
         }
     }
           stage('Jira Update after deploy on Prod') {
             
             steps {
-                jiraSendDeploymentInfo environmentId: 'http://18.220.168.111:8080/', environmentName: 'http://18.220.168.111:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                jiraSendDeploymentInfo environmentId: 'http://3.16.37.146:8080/', environmentName: 'http://3.16.37.146:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
         }
     }
     
@@ -73,10 +94,15 @@ pipeline {
                 
         }
     }
-        stage('Sanity Test ') {
-            steps {
-                 publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '\\Acceptancetest\\target\\surefire-reports', reportFiles: 'index.html', reportName: 'Sanity Test Report', reportTitles: ''])  
-        }
-    }
+stage("Sanity test"){
+    		steps{
+    		   sh "mvn -B -f /var/lib/jenkins/workspace/Test/Acceptancetest/pom.xml install"
+    		}
+            post {
+                success {
+                   publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '\\Acceptancetest\\target\\surefire-reports', reportFiles: 'index.html', reportName: 'Sanity Test Report', reportTitles: ''])
+                }
+            }
+    	}
  }
 }
