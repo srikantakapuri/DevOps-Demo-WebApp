@@ -94,7 +94,7 @@ pipeline {
                 
         }
     }
-stage("Sanity test"){
+stage("Sanity Result"){
     		steps{
     		   sh "mvn -B -f /var/lib/jenkins/workspace/Test/Acceptancetest/pom.xml install"
     		}
