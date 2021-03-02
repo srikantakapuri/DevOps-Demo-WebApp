@@ -10,65 +10,66 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/Sathish-1985/DevOps-Demo-WebApp']]])
             }
         }
-        stage('Build') {
-            steps {
-                sh 'mvn clean install -f pom.xml'
-        }
-    }
-      
-       stage('SonarqubeScanner') {
+         stage('SonarqubeScanner') {
                 environment {
                     scannerHome = tool 'sonarqube'
                 }
                 steps {
-                   //slackSend channel: 'alerts', message: 'Static code analysis is in progress'
+                   
                     withSonarQubeEnv('sonarqube') {
                         sh """${scannerHome}/bin/sonar-scanner"""
                     }
-                   // timeout(time: 2, unit: 'MINUTES') {
-                   //     waitForQualityGate abortPipeline: true
-                    //}
-                    //slackSend channel: 'alerts', message: 'Static code analysis is complete'
+                   
                     }
             }
-            	stage("artifactory upload"){
+        stage('Build') {
+            steps {
+               
+                sh 'mvn clean install -f pom.xml'
+                 slackSend channel: '#alert', message: 'Build process completed' 
+        }
+        post {
+       always {
+           jiraSendBuildInfo branch: 'BUG-2', site: 'sathishdevops.atlassian.net'
+           }
+            }
+    }
+ 
+    stage('DeployToNewTest') {
+            steps {
+                
+           deploy adapters: [tomcat8(url: 'http://18.216.215.135:8080/', credentialsId: 'tomcat', path: '' )], contextPath: '/QAWebapp', war: '**/*.war'
+            slackSend channel: '#alert', message: 'Deploy to Test Success' 
+        }
+                post {
+       always {
+           jiraSendDeploymentInfo environmentId: 'http://18.216.215.135:8080/', environmentName: 'http://18.216.215.135:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
+       }
+            }
+       }
+       stage("artifactory upload"){
     	    steps{
-    	        rtUpload (
+    		      
+                rtMavenDeployer (
+                    id: 'deployer-unique-id',
                     serverId: 'artifactory',
-                    spec: '''{
-                          "files": [
-                            {
-                              "pattern": "**/*.war",
-                              "target": "libs-release-local"
-                            }
-                         ]
-                    }''',
-                    buildName: 'holyFrog',
-                    buildNumber: '42'
+                    releaseRepo: 'libs-release-local',
+                    snapshotRepo: 'libs-snapshot-local'
+                )
+                rtMavenRun (
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: 'deployer-unique-id'
+                )
+    	       rtPublishBuildInfo (
+                    serverId: "artifactory"
                 )
     	    }
     	}
-        stage('Test Deploy ') {
-            steps {
-                    deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.224.107.247:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
-                
-        }
-    }
-        stage('Slack Notification after Test') {
-            steps {
-                  slackSend channel: '#alert', message: 'Deploy to Test Success'  
-                
-        }
-    }
-        stage('Jira Update after deploy on Test') {
-            
-            steps {
-                jiraSendBuildInfo branch: 'BUG-2', site: 'sathishdevops.atlassian.net'
-        }
-    }
     	stage("unit test"){
     		steps{
-    		   sh "mvn -B -f /var/lib/jenkins/workspace/Test/functionaltest/pom.xml install"
+    		   sh "mvn -B -f /var/lib/jenkins/workspace/DeclarativePipelineJob/functionaltest/pom.xml install"
     		}
             post {
                 success {
@@ -76,27 +77,22 @@ pipeline {
                 }
             }
     	}
-        stage('Deploy to Prod') {
-            steps {
-                 deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://3.16.37.146:8080/')], contextPath: '/QAWebapp', war: '**/*.war'
-        }
-    }
-          stage('Jira Update after deploy on Prod') {
-            
-            steps {
-                jiraSendDeploymentInfo environmentId: 'http://3.16.37.146:8080/', environmentName: 'http://3.16.37.146:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
-        }
-    }
-    
-        stage('Slack Notification after Prod ') {
-            steps {
-                  slackSend channel: '#alert', message: 'Deploy to Prod Success'  
-                
-        }
-    }
-stage("Sanity Result"){
+    	stage("deploy to Prod"){
     		steps{
-    		   sh "mvn -B -f /var/lib/jenkins/workspace/Test/Acceptancetest/pom.xml install"
+    		   deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.189.26.183:8080/')], contextPath: '/ProdWebapp', war: '**/*.war'
+    	          slackSend channel: '#alert', message: 'Prod deployment completed' 
+    		}
+    		                post {
+       always {
+           jiraSendDeploymentInfo environmentId: 'http://18.189.26.183:8080/', environmentName: 'http://18.189.26.183:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
+       }
+            }
+    		
+    	}
+    	stage("Sanity test"){
+    		steps{
+    		   sh "mvn -B -f /var/lib/jenkins/workspace/DeclarativePipelineJob/Acceptancetest/pom.xml install"
     		}
             post {
                 success {
