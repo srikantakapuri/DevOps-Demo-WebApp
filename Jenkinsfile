@@ -48,6 +48,8 @@ pipeline {
        }
             }
        }
+ stage ('parallel') {
+    parallel {
        stage("artifactory upload"){
     	    steps{
     		      
@@ -77,6 +79,9 @@ pipeline {
                 }
             }
     	}
+        
+    }
+ }
     	stage("deploy to Prod"){
     		steps{
     		   deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.189.26.183:8080/')], contextPath: '/ProdWebapp', war: '**/*.war'
