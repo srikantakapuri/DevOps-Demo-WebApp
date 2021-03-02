@@ -35,7 +35,7 @@ pipeline {
             }
     }
  
-    stage('DeployToNewTest') {
+    stage('Deploy To Test') {
             steps {
                 
            deploy adapters: [tomcat8(url: 'http://18.216.215.135:8080/', credentialsId: 'tomcat', path: '' )], contextPath: '/QAWebapp', war: '**/*.war'
@@ -69,7 +69,7 @@ pipeline {
                 )
     	    }
     	}
-    	stage("unit test"){
+    	stage("UI Test"){
     		steps{
     		   sh "mvn -B -f /var/lib/jenkins/workspace/DeclarativePipelineJob/functionaltest/pom.xml install"
     		}
