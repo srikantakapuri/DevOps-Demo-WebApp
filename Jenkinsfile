@@ -79,6 +79,11 @@ pipeline {
                 }
             }
     	}
+                //stage('Performance test') {
+            //steps {
+                // blazeMeterTest credentialsId: 'Blazmeter', testId: '9014493.taurus', workspaceId: '756521'
+        //}
+    //}
         
     }
  }
@@ -90,7 +95,7 @@ pipeline {
     		                post {
        always {
            jiraSendDeploymentInfo environmentId: 'http://18.189.26.183:8080/', environmentName: 'http://18.189.26.183:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
-           jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
+          // jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
        }
             }
     		
