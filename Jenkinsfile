@@ -38,13 +38,13 @@ pipeline {
     stage('Deploy To Test') {
             steps {
                 
-           deploy adapters: [tomcat8(url: 'http://18.216.215.135:8080/', credentialsId: 'tomcat', path: '' )], contextPath: '/QAWebapp', war: '**/*.war'
+           deploy adapters: [tomcat8(url: 'http://34.71.173.204:8080/', credentialsId: 'tomcat', path: '' )], contextPath: '/QAWebapp', war: '**/*.war'
             slackSend channel: '#alert', message: 'Deploy to Test Success' 
         }
                 post {
        always {
-           jiraSendDeploymentInfo environmentId: 'http://18.216.215.135:8080/', environmentName: 'http://18.216.215.135:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
-           jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
+           jiraSendDeploymentInfo environmentId: 'http://34.71.173.204:8080/', environmentName: 'http://18.216.215.135:8080/', environmentType: 'Test', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           //jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
        }
             }
        }
@@ -89,12 +89,12 @@ pipeline {
  }
     	stage("deploy to Prod"){
     		steps{
-    		   deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://18.189.26.183:8080/')], contextPath: '/ProdWebapp', war: '**/*.war'
+    		   deploy adapters: [tomcat8(credentialsId: 'tomcat', path: '', url: 'http://34.121.77.103:8080/')], contextPath: '/ProdWebapp', war: '**/*.war'
     	          slackSend channel: '#alert', message: 'Prod deployment completed' 
     		}
     		                post {
        always {
-           jiraSendDeploymentInfo environmentId: 'http://18.189.26.183:8080/', environmentName: 'http://18.189.26.183:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           jiraSendDeploymentInfo environmentId: 'http://34.121.77.103:8080/', environmentName: 'http://18.189.26.183:8080/', environmentType: 'Prod', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
           // jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
        }
             }
