@@ -43,7 +43,7 @@ pipeline {
         }
                 post {
        always {
-           jiraSendDeploymentInfo environmentId: 'http://18.219.153.31:8080/', environmentName: 'http://18.216.215.135:8080/', environmentType: 'Test', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           jiraSendDeploymentInfo environmentId: 'http://18.219.153.31:8080/', environmentName: 'http://18.216.215.135:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
            //jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
        }
             }
@@ -94,7 +94,7 @@ pipeline {
     		}
     		                post {
        always {
-           jiraSendDeploymentInfo environmentId: 'http://18.222.249.168:8080/', environmentName: 'http://18.222.249.168:8080/', environmentType: 'Prod', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+           jiraSendDeploymentInfo environmentId: 'http://18.222.249.168:8080/', environmentName: 'http://18.222.249.168:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
           // jiraIssueSelector(issueSelector: [$class: 'ExplicitIssueSelector', issueKeys: 'BUG-2'])
        }
             }
