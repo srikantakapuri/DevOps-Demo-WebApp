@@ -79,11 +79,11 @@ pipeline {
                 }
             }
     	}
-               stage('Performance test') {
-                steps {
-                  blazeMeterTest credentialsId: 'Blazmeter', testId: '9014493.taurus', workspaceId: '756521'
-        }
-    }
+               //stage('Performance test') {
+                //steps {
+                  //blazeMeterTest credentialsId: 'Blazmeter', testId: '9014493.taurus', workspaceId: '756521'
+        //}
+    //}
         
     }
  }
