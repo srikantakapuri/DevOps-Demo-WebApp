@@ -31,6 +31,11 @@ pipeline {
             steps {
                sh "mvn clean install"
             }
+            post {
+               always {
+                   jiraSendBuildInfo branch: 'BUG-2', site: 'sathishdevops.atlassian.net'
+                   }
+            }
         }
         stage ('artifactory & Dockerhub upload') {
     parallel {
@@ -73,7 +78,11 @@ pipeline {
             
                 slackSend channel: '#alerts', message: 'Test deployment completed' 
             }
-            
+            post {
+                always {
+                    jiraSendDeploymentInfo environmentId: 'http://54.236.17.79:8080/', environmentName: 'http://54.236.17.79:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                }
+            }
         }
 
         stage("UI Test"){
@@ -99,7 +108,11 @@ pipeline {
             
                 slackSend channel: '#alerts', message: 'Prod deployment completed' 
             }
-            
+            post {
+               always {
+                   jiraSendDeploymentInfo environmentId: 'http://54.165.166.19:8080/', environmentName: 'http://54.165.166.19:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+               }
+            }
         }
         stage("Sanity test"){
     		steps{
