@@ -80,7 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    jiraSendDeploymentInfo environmentId: 'http://54.236.17.79:8080/', environmentName: 'http://54.236.17.79:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                    jiraSendDeploymentInfo environmentId: 'http://100.26.151.51:8080/', environmentName: 'http://100.26.151.51:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
                 }
             }
         }
@@ -110,7 +110,7 @@ pipeline {
             }
             post {
                always {
-                   jiraSendDeploymentInfo environmentId: 'http://54.165.166.19:8080/', environmentName: 'http://54.165.166.19:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                   jiraSendDeploymentInfo environmentId: 'http://34.232.66.243:8080/', environmentName: 'http://34.232.66.243:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
                }
             }
         }
