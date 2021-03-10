@@ -15,18 +15,18 @@ pipeline {
                sh "mvn compiler:compile"
             }
         }
-        stage('SonarqubeScanner') {
-                environment {
-                    scannerHome = tool 'sonarqube'
-                }
-                steps {
+        //stage('SonarqubeScanner') {
+               // environment {
+                //    scannerHome = tool 'sonarqube'
+                //}
+                //steps {
                    
-                    withSonarQubeEnv('sonarqube') {
-                        sh """${scannerHome}/bin/sonar-scanner"""
-                    }
+                   // withSonarQubeEnv('sonarqube') {
+                    //    sh """${scannerHome}/bin/sonar-scanner"""
+                    //}
                    
-                    }
-            }
+                   // }
+            //}
         stage('Code Package') {
             steps {
                sh "mvn clean install"
