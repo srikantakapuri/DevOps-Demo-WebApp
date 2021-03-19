@@ -15,18 +15,18 @@ pipeline {
                sh "mvn compiler:compile"
             }
         }
-        //stage('SonarqubeScanner') {
-               // environment {
-                //    scannerHome = tool 'sonarqube'
-                //}
-                //steps {
+        stage('SonarqubeScanner') {
+               environment {
+                scannerHome = tool 'sonarqube'
+                }
+                {
                    
-                   // withSonarQubeEnv('sonarqube') {
-                    //    sh """${scannerHome}/bin/sonar-scanner"""
-                    //}
+                 withSonarQubeEnv('sonarqube') {
+                    sh """${scannerHome}/bin/sonar-scanner"""
+                  }
                    
-                   // }
-            //}
+                }
+         }
         stage('Code Package') {
             steps {
                sh "mvn clean install"
@@ -80,7 +80,7 @@ pipeline {
             }
             post {
                 always {
-                    jiraSendDeploymentInfo environmentId: 'http://3.85.1.35:8080/', environmentName: 'http://3.85.1.35:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                    jiraSendDeploymentInfo environmentId: 'http://54.157.161.197:8080/', environmentName: 'http://54.157.161.197:8080/', environmentType: 'testing', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
                 }
             }
         }
@@ -110,7 +110,7 @@ pipeline {
             }
             post {
                always {
-                   jiraSendDeploymentInfo environmentId: 'http://54.90.50.164:8080/', environmentName: 'http://54.90.50.164:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
+                   jiraSendDeploymentInfo environmentId: 'http://54.236.51.152:8080/', environmentName: 'http://54.236.51.152:8080/', environmentType: 'production', issueKeys: ['BUG-2'], serviceIds: [''], site: 'sathishdevops.atlassian.net', state: 'successful'
                }
             }
         }
